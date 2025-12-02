@@ -1,0 +1,8 @@
+<JavaCardProject name="CyberCafeJC">
+<USER>
+<PKG name="com.olaz.cybercafe" aid="06 03 30 26 01 17" major="1" minor="0">
+<APPLET aid="06 03 30 26 01 17 00" instanceaid="" parameter="" authority="" privileges="" index="-29248" name="CyberCafe"/>
+</PKG>
+<Libs/>
+</USER>
+</JavaCardProject>
