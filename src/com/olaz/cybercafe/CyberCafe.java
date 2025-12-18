@@ -16,6 +16,9 @@ public class CyberCafe extends Applet
 	private static final byte INS_CHANGE_PIN = (byte) 0x21;
 	private static final byte INS_CHECK_LOCK = (byte) 0x22;
 	private static final byte INS_UNBLOCK_PIN = (byte) 0x2C;
+	
+    private static final byte INS_GET_PUBKEY  = (byte) 0x30;
+    private static final byte INS_SIGN_RSA    = (byte) 0x31;
 		
 	private static final byte INS_SET_INFO = (byte)0x50;
 	private static final byte INS_GET_INFO = (byte)0x51;
@@ -47,6 +50,11 @@ public class CyberCafe extends Applet
 	private AESKey aesKey;
 	private Cipher aesCipher;
 	private RandomData random;
+	
+	private RSAPrivateKey rsaPrivKey;
+    private RSAPublicKey rsaPubKey;
+    private Signature rsaSig;
+    private KeyPair rsaKeyPair;
 
 	private CyberCafe() {
 		pin = new OwnerPIN(PIN_TRY_LIMIT, MAX_PIN_SIZE);
@@ -71,6 +79,13 @@ public class CyberCafe extends Applet
 		aesKey.setKey(keyData, (short)0);
 
 		aesCipher = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_ECB_NOPAD, false);
+		
+		rsaKeyPair = new KeyPair(KeyPair.ALG_RSA, KeyBuilder.LENGTH_RSA_1024);
+        rsaSig = Signature.getInstance(Signature.ALG_RSA_SHA_PKCS1, false);
+        
+        rsaKeyPair.genKeyPair();
+        rsaPrivKey = (RSAPrivateKey) rsaKeyPair.getPrivate();
+        rsaPubKey = (RSAPublicKey) rsaKeyPair.getPublic();
 	}
 
 	public static void install(byte[] bArray, short bOffset, byte bLength) 
@@ -99,6 +114,14 @@ public class CyberCafe extends Applet
 			
 		case INS_UNBLOCK_PIN:
 			resetAndUnblock();
+			break;
+			
+		case INS_GET_PUBKEY:
+			getPublicKey(apdu, buf);
+			break;
+		
+		case INS_SIGN_RSA:
+			signRSA(apdu, buf);
 			break;
 			
 		case INS_SET_INFO:
@@ -144,6 +167,22 @@ public class CyberCafe extends Applet
 		
 		pin.update(buf, ISO7816.OFFSET_CDATA, (byte) dataLength);
 	}
+	
+	private void signRSA(APDU apdu, byte[] buf) {
+		short len = apdu.setIncomingAndReceive();
+		
+		Cipher rsaCipher = Cipher.getInstance(Cipher.ALG_RSA_PKCS1, false);
+		rsaCipher.init(rsaPrivKey, Cipher.MODE_ENCRYPT); 
+		
+		short outLen = rsaCipher.doFinal(buf, ISO7816.OFFSET_CDATA, len, buf, (short)0);
+		
+		apdu.setOutgoingAndSend((short)0, outLen);
+	}
+
+    private void getPublicKey(APDU apdu, byte[] buf) {
+        short modLen = rsaPubKey.getModulus(buf, (short)0);
+		apdu.setOutgoingAndSend((short)0, modLen);
+    }
 	
 	private void resetAndUnblock() {
 		pin.resetAndUnblock();
