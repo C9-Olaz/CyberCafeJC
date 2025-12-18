@@ -26,7 +26,7 @@ public class CyberCafe extends Applet
 	
 	private static final short MAX_ID_SIZE = (short) 16;
 	private static final short MAX_USERNAME_SIZE = (short) 32;
-	private static final short MAX_NAME_SIZE = (short) 32;
+	private static final short MAX_NAME_SIZE = (short) 64;
 	private static final short MAX_LEVEL_SIZE = (short) 16;
 	
 	private static final byte[] DEFAULT_PIN = {'0', '0', '0', '0'};
