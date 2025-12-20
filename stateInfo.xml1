@@ -7,7 +7,7 @@
 <FileNodes>
 <fnode>
 <fileName>C:\JavaCardKit\SDK\Tools\JCIDE\apis\jc222\javacard\framework\OwnerPIN.java</fileName>
-<line>197</line>
+<line>155</line>
 </fnode>
 <fnode>
 <fileName>C:\JavaCardKit\SDK\Tools\JCIDE\apis\jc222\javacard\framework\ISO7816.java</fileName>
@@ -15,7 +15,7 @@
 </fnode>
 <ActiveFile>
 <fileName>src\com\olaz\cybercafe\CyberCafe.java</fileName>
-<line>26</line>
+<line>17</line>
 </ActiveFile>
 </FileNodes>
 </StateInfo>
