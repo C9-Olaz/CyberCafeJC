@@ -43,6 +43,8 @@ public class CyberCafe extends Applet {
     private static final byte MAX_HISTORY_RECORDS = (byte) 10;
     private static final byte TRANSACTION_RECORD_SIZE = (byte) 6;
     
+    private short globalTransactionId;
+    
     private static final byte[] DEFAULT_PIN = {'0', '0', '0', '0'};
     
     // --- MASTER CODE FOR RECOVERY ---
@@ -437,13 +439,24 @@ public class CyberCafe extends Applet {
     }
     
     private void recordTransaction(short amount, byte type) {
-        short offset = (short)(historyIndex * TRANSACTION_RECORD_SIZE);
-        Util.setShort(transactionHistory, offset, amount);
-        transactionHistory[(short)(offset + 2)] = type;
-        // Optionally add timestamp or counter bytes at offset+3
-        
-        historyIndex = (byte)((historyIndex + 1) % MAX_HISTORY_RECORDS);
-    }
+    // Calculate the start position for this record
+    short offset = (short)(historyIndex * TRANSACTION_RECORD_SIZE);
+
+    // 1. Store Amount (Offsets 0, 1)
+    Util.setShort(transactionHistory, offset, amount);
+
+    // 2. Store Type (Offset 2)
+    transactionHistory[(short)(offset + 2)] = type;
+
+    // 3. Store the Transaction Index/ID (Offsets 3, 4)
+    Util.setShort(transactionHistory, (short)(offset + 3), globalTransactionId);
+
+    // 4. Increment the global counter for the next transaction
+    globalTransactionId++;
+
+    // 5. Move the circular buffer pointer
+    historyIndex = (byte)((historyIndex + 1) % MAX_HISTORY_RECORDS);
+}
     
     private void getHistory(APDU apdu) {
         if (!pin.isValidated()) ISOException.throwIt(ISO7816.SW_SECURITY_STATUS_NOT_SATISFIED);
